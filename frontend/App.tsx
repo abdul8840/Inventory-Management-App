@@ -8,11 +8,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { persister, queryClient } from './src/api/queryClient';
+import { renderPaperIcon } from './src/components/common/PaperIcon';
 import { store } from './src/store/store';
 import { useAppDispatch, useAppSelector } from './src/hooks/useStore';
 import { bootstrapAuth } from './src/features/auth/authSlice';
 import { configureOnlineManager } from './src/api/onlineManager';
 import { buildNavigationTheme, buildPaperTheme } from './src/theme/theme';
+
+const paperSettings = {
+  icon: renderPaperIcon
+};
 
 function AppShell() {
   const dispatch = useAppDispatch();
@@ -28,7 +33,7 @@ function AppShell() {
   }, [dispatch]);
 
   return (
-    <PaperProvider theme={paperTheme}>
+    <PaperProvider theme={paperTheme} settings={paperSettings}>
       <NavigationContainer theme={navigationTheme}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={paperTheme.colors.background} />
         <RootNavigator />

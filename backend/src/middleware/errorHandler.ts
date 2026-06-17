@@ -8,6 +8,8 @@ export const notFoundHandler: RequestHandler = (req, _res, next) => {
 };
 
 export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+  void _next;
+
   const statusCode = error instanceof ApiError ? error.statusCode : 500;
   const message = error instanceof ApiError ? error.message : 'Internal server error';
 

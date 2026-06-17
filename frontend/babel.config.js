@@ -7,13 +7,6 @@ module.exports = function (api) {
     presets: ['module:@react-native/babel-preset'],
     plugins: [
       !isTest && cssInteropPlugin,
-      !isTest && [
-        '@babel/plugin-transform-react-jsx',
-        {
-          runtime: 'automatic',
-          importSource: 'react-native-css-interop'
-        }
-      ],
       'react-native-reanimated/plugin'
     ].filter(Boolean)
   };
