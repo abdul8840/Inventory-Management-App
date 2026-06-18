@@ -40,35 +40,70 @@ function isPlaceholder(value) {
   return !value || /your-|replace-|placeholder|000000/i.test(value);
 }
 
-function hasValidGoogleServices(filePath) {
+function readGoogleServices(filePath) {
   if (!fs.existsSync(filePath)) {
-    return false;
+    return null;
   }
 
   try {
     const json = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     const client = json.client?.[0];
-    const apiKey = client?.api_key?.[0]?.current_key;
-    const appId = client?.client_info?.mobilesdk_app_id;
-    const projectId = json.project_info?.project_id;
-
-    return !isPlaceholder(apiKey) && !isPlaceholder(appId) && !isPlaceholder(projectId);
+    return {
+      apiKey: client?.api_key?.[0]?.current_key,
+      appId: client?.client_info?.mobilesdk_app_id,
+      packageName: client?.client_info?.android_client_info?.package_name,
+      projectId: json.project_info?.project_id
+    };
   } catch {
-    return false;
+    return null;
   }
 }
 
-if (hasValidGoogleServices(googleServicesPath)) {
+function hasValidGoogleServices(config) {
+  return (
+    config &&
+    !isPlaceholder(config.apiKey) &&
+    !isPlaceholder(config.appId) &&
+    !isPlaceholder(config.projectId)
+  );
+}
+
+function firstEnv(env, keys) {
+  for (const key of keys) {
+    if (!isPlaceholder(env[key])) {
+      return env[key];
+    }
+  }
+
+  return undefined;
+}
+
+const existingGoogleServices = readGoogleServices(googleServicesPath);
+
+if (hasValidGoogleServices(existingGoogleServices)) {
+  if (existingGoogleServices.packageName !== packageName) {
+    console.error(
+      [
+        'Firebase Android package mismatch.',
+        `Current android/app/google-services.json package: ${existingGoogleServices.packageName || 'unknown'}`,
+        `Expected Android package: ${packageName}`,
+        '',
+        `Download a Firebase Android config for ${packageName}, or add FIREBASE_ANDROID_* values to frontend/.env so this script can generate a matching local file.`
+      ].join('\n')
+    );
+    process.exit(1);
+  }
+
   console.log('Using existing android/app/google-services.json');
   process.exit(0);
 }
 
 const env = parseEnv(envPath);
 const required = {
-  FIREBASE_ANDROID_PROJECT_NUMBER: env.FIREBASE_ANDROID_PROJECT_NUMBER,
-  FIREBASE_ANDROID_PROJECT_ID: env.FIREBASE_ANDROID_PROJECT_ID,
-  FIREBASE_ANDROID_APP_ID: env.FIREBASE_ANDROID_APP_ID,
-  FIREBASE_ANDROID_API_KEY: env.FIREBASE_ANDROID_API_KEY
+  FIREBASE_ANDROID_PROJECT_NUMBER: firstEnv(env, ['FIREBASE_ANDROID_PROJECT_NUMBER', 'FIREBASE_PROJECT_NUMBER']),
+  FIREBASE_ANDROID_PROJECT_ID: firstEnv(env, ['FIREBASE_ANDROID_PROJECT_ID', 'FIREBASE_PROJECT_ID']),
+  FIREBASE_ANDROID_APP_ID: firstEnv(env, ['FIREBASE_ANDROID_APP_ID', 'FIREBASE_APP_ID']),
+  FIREBASE_ANDROID_API_KEY: firstEnv(env, ['FIREBASE_ANDROID_API_KEY', 'FIREBASE_API_KEY', 'FIREBASE_WEB_API_KEY'])
 };
 
 const missing = Object.entries(required)
