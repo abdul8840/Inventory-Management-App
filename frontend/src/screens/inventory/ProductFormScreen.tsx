@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, HelperText, Menu, Text, TextInput, useTheme } from 'react-native-paper';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppButton } from '../../components/common/AppButton';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { categoryOptions } from '../../constants/categories';
 import { useCreateProduct, useProduct, useUpdateProduct } from '../../features/inventory/useProducts';
@@ -159,7 +160,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             <Image key={image.publicId} source={{ uri: image.url }} style={{ width: 72, height: 72, borderRadius: 8 }} />
           ))}
         </View>
-        <Button mode="outlined" icon="image-plus" onPress={pickImage}>
+        <Button mode="outlined" icon={paperIcon('image-plus')} onPress={pickImage}>
           Add Product Image
         </Button>
         <AppButton loading={loading} onPress={form.handleSubmit(onSubmit)}>

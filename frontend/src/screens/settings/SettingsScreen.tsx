@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, View } from 'react-native';
 import { Button, Card, SegmentedButtons, Switch, Text, useTheme } from 'react-native-paper';
 import { Screen } from '../../components/common/Screen';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { useSettings, useUpdateSettings } from '../../features/profile/useSettings';
 import { setThemeMode } from '../../store/preferencesSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
@@ -48,9 +49,9 @@ export function SettingsScreen() {
             value={themeMode}
             onValueChange={(value) => dispatch(setThemeMode(value as 'system' | 'light' | 'dark'))}
             buttons={[
-              { value: 'system', label: 'System' },
-              { value: 'light', label: 'Light' },
-              { value: 'dark', label: 'Dark' }
+              { value: 'system', label: 'System', icon: paperIcon('monitor-cog'), showSelectedCheck: false },
+              { value: 'light', label: 'Light', icon: paperIcon('sun'), showSelectedCheck: false },
+              { value: 'dark', label: 'Dark', icon: paperIcon('moon'), showSelectedCheck: false }
             ]}
           />
         </Card.Content>

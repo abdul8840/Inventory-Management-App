@@ -6,6 +6,7 @@ import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-pape
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { KeyRound } from 'lucide-react-native';
 import { AppButton } from '../../components/common/AppButton';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { sendPasswordReset } from '../../services/firebaseAuth';
 import type { AuthStackParamList } from '../../types/navigation';
@@ -82,7 +83,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
                 mode="outlined"
                 autoCapitalize="none"
                 keyboardType="email-address"
-                left={<TextInput.Icon icon="email-outline" />}
+                left={<TextInput.Icon icon={paperIcon('email-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}

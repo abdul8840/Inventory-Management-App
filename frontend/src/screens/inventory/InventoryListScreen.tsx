@@ -4,6 +4,7 @@ import { FAB, Searchbar, SegmentedButtons, Text, useTheme } from 'react-native-p
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { EmptyState } from '../../components/common/EmptyState';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { ProductCard } from '../../components/inventory/ProductCard';
 import { useProducts } from '../../features/inventory/useProducts';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -13,10 +14,10 @@ import type { ProductCategory } from '../../types/product';
 type Props = NativeStackScreenProps<InventoryStackParamList, 'InventoryList'>;
 
 const quickFilters = [
-  { value: 'all', label: 'All' },
-  { value: 'low', label: 'Low' },
-  { value: 'Electronics', label: 'Tech' },
-  { value: 'Grocery', label: 'Grocery' }
+  { value: 'all', label: 'All', showSelectedCheck: false },
+  { value: 'low', label: 'Low', showSelectedCheck: false },
+  { value: 'Electronics', label: 'Tech', showSelectedCheck: false },
+  { value: 'Grocery', label: 'Grocery', showSelectedCheck: false }
 ];
 
 export function InventoryListScreen({ navigation }: Props) {
@@ -62,6 +63,8 @@ export function InventoryListScreen({ navigation }: Props) {
           placeholder="Search title, SKU, supplier, barcode"
           value={search}
           onChangeText={setSearch}
+          icon={paperIcon('magnify')}
+          clearIcon={paperIcon('close')}
           style={{ backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.outlineVariant }}
           inputStyle={{ fontSize: 14 }}
         />
@@ -98,12 +101,12 @@ export function InventoryListScreen({ navigation }: Props) {
         />
       )}
       <FAB
-        icon="barcode-scan"
+        icon={paperIcon('barcode-scan')}
         color={theme.colors.primary}
         style={{ position: 'absolute', right: 88, bottom: 24, backgroundColor: theme.colors.surface }}
         onPress={() => navigation.navigate('BarcodeScanner')}
       />
-      <FAB icon="plus" color="#FFFFFF" style={{ position: 'absolute', right: 24, bottom: 24, backgroundColor: theme.colors.primary }} onPress={() => navigation.navigate('ProductForm')} />
+      <FAB icon={paperIcon('plus')} color="#FFFFFF" style={{ position: 'absolute', right: 24, bottom: 24, backgroundColor: theme.colors.primary }} onPress={() => navigation.navigate('ProductForm')} />
     </View>
   );
 }

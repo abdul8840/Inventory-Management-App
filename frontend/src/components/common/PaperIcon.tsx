@@ -17,10 +17,13 @@ import {
   ImagePlus,
   LockKeyhole,
   Mail,
+  MonitorCog,
+  Moon,
   Plus,
   ScanBarcode,
   Search,
   Settings,
+  Sun,
   User,
   X,
   type LucideProps
@@ -59,10 +62,13 @@ const icons: Record<string, LucideComponent> = {
   'lock-outline': LockKeyhole,
   magnify: Search,
   'menu-down': ChevronDown,
+  moon: Moon,
+  'monitor-cog': MonitorCog,
   plus: Plus,
   'plus-circle': CirclePlus,
   qrcode: Barcode,
-  scan: ScanBarcode
+  scan: ScanBarcode,
+  sun: Sun
 };
 
 export function renderPaperIcon({ name, color = '#191113', size, direction, testID }: PaperIconProps) {
@@ -77,4 +83,9 @@ export function renderPaperIcon({ name, color = '#191113', size, direction, test
       style={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }}
     />
   );
+}
+
+export function paperIcon(name: string) {
+  return ({ color, size, direction, testID }: Partial<Omit<PaperIconProps, 'name'>> & Pick<PaperIconProps, 'size'>) =>
+    renderPaperIcon({ name, color, size, direction, testID });
 }

@@ -6,6 +6,7 @@ import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-pape
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LogIn } from 'lucide-react-native';
 import { AppButton } from '../../components/common/AppButton';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { signInWithEmail, signInWithGoogle } from '../../features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
@@ -76,7 +77,7 @@ export function LoginScreen({ navigation }: Props) {
                 mode="outlined"
                 autoCapitalize="none"
                 keyboardType="email-address"
-                left={<TextInput.Icon icon="email-outline" />}
+                left={<TextInput.Icon icon={paperIcon('email-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
@@ -96,7 +97,7 @@ export function LoginScreen({ navigation }: Props) {
                 label="Password"
                 mode="outlined"
                 secureTextEntry
-                left={<TextInput.Icon icon="lock-outline" />}
+                left={<TextInput.Icon icon={paperIcon('lock-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
@@ -111,7 +112,7 @@ export function LoginScreen({ navigation }: Props) {
         <AppButton loading={loading} onPress={form.handleSubmit(onSubmit)}>
           Sign In
         </AppButton>
-        <Button mode="outlined" icon="google" contentStyle={{ minHeight: 50 }} onPress={() => dispatch(signInWithGoogle())} disabled={loading}>
+        <Button mode="outlined" icon={paperIcon('google')} contentStyle={{ minHeight: 50 }} onPress={() => dispatch(signInWithGoogle())} disabled={loading}>
           Continue with Google
         </Button>
         <Button onPress={() => navigation.navigate('ForgotPassword')}>Forgot password?</Button>

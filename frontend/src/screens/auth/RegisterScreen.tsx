@@ -6,6 +6,7 @@ import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-pape
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { UserPlus } from 'lucide-react-native';
 import { AppButton } from '../../components/common/AppButton';
+import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { signUpWithEmail } from '../../features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
@@ -72,7 +73,7 @@ export function RegisterScreen({ navigation }: Props) {
               <TextInput
                 label="Full name"
                 mode="outlined"
-                left={<TextInput.Icon icon="account-outline" />}
+                left={<TextInput.Icon icon={paperIcon('account-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
@@ -93,7 +94,7 @@ export function RegisterScreen({ navigation }: Props) {
                 mode="outlined"
                 autoCapitalize="none"
                 keyboardType="email-address"
-                left={<TextInput.Icon icon="email-outline" />}
+                left={<TextInput.Icon icon={paperIcon('email-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
@@ -113,7 +114,7 @@ export function RegisterScreen({ navigation }: Props) {
                 label="Password"
                 mode="outlined"
                 secureTextEntry
-                left={<TextInput.Icon icon="lock-outline" />}
+                left={<TextInput.Icon icon={paperIcon('lock-outline')} />}
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
