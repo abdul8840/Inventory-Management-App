@@ -44,6 +44,11 @@ npm run ios
 | Variable | Purpose |
 | --- | --- |
 | `API_URL` | Backend API URL, for example `http://10.0.2.2:5000/api/v1` |
+| `FIREBASE_ANDROID_PROJECT_NUMBER` | Firebase Android project number from `google-services.json` |
+| `FIREBASE_ANDROID_PROJECT_ID` | Firebase project id |
+| `FIREBASE_ANDROID_APP_ID` | Firebase Android app id for package `com.inventorymobile` |
+| `FIREBASE_ANDROID_API_KEY` | Firebase Android API key |
+| `FIREBASE_STORAGE_BUCKET` | Firebase storage bucket |
 | `GOOGLE_WEB_CLIENT_ID` | Firebase Google web client id |
 | `IOS_CLIENT_ID` | Firebase iOS client id |
 | `ANDROID_CLIENT_ID` | Firebase Android client id |
@@ -51,17 +56,17 @@ npm run ios
 ## Firebase Mobile Configuration
 
 1. Create Android and iOS apps in Firebase Console.
-2. Android package name should match the native app id.
-3. Download `google-services.json` to `android/app/google-services.json`.
-4. Download `GoogleService-Info.plist` to `ios/`.
-5. Enable Email/Password and Google Sign-In providers.
+2. Android package name must be `com.inventorymobile`.
+3. Enable Email/Password and Google Sign-In providers.
+4. Download `google-services.json` to `android/app/google-services.json`, or add the Firebase Android values to `.env` and run `npm run firebase:android`.
+5. Download `GoogleService-Info.plist` to `ios/`.
 6. Configure SHA-1/SHA-256 fingerprints for Android Google Sign-In.
 
 ## Native Setup Notes
 
-The Android and iOS React Native CLI shells are included. Before running the app, add your Firebase native config files:
+The Android and iOS React Native CLI shells are included. Before running the app, add real Firebase native config:
 
-- Android: copy `android/app/google-services.json.example` to `android/app/google-services.json` and replace the placeholder values, or download the file from Firebase.
+- Android: `npm run android` runs `npm run firebase:android` first. It uses an existing real `android/app/google-services.json`, or generates one from the `FIREBASE_ANDROID_*` values in `.env`.
 - iOS: copy `ios/GoogleService-Info.plist.example` to `ios/GoogleService-Info.plist` and replace the placeholder values, or download the file from Firebase.
 
 Android package id and iOS bundle id are set to `com.inventorymobile`. If you change them in Firebase, update the native project files to match.

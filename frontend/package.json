@@ -4,6 +4,8 @@
   "private": true,
   "description": "Production-ready React Native CLI inventory management SaaS mobile application.",
   "scripts": {
+    "firebase:android": "node scripts/generate-google-services.js",
+    "preandroid": "npm run firebase:android",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
