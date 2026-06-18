@@ -1,5 +1,5 @@
 import { app } from './app';
-import { connectDatabase } from './config/db';
+import { connectDatabase, DatabaseConnectionError } from './config/db';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -20,6 +20,17 @@ async function bootstrap() {
 }
 
 bootstrap().catch((error) => {
+  if (error instanceof DatabaseConnectionError) {
+    logger.fatal(
+      {
+        message: error.message,
+        details: error.details
+      },
+      'Failed to connect to MongoDB'
+    );
+    process.exit(1);
+  }
+
   logger.fatal({ error }, 'Failed to start API');
   process.exit(1);
 });

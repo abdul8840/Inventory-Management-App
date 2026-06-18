@@ -66,7 +66,8 @@ http://localhost:5000/api/v1/docs
 1. Create a cluster.
 2. Create a database user with read/write access.
 3. Add your API host IP to Network Access.
-4. Use a connection string like:
+4. Put a database name in the connection string path.
+5. Use a connection string like:
 
 ```text
 mongodb+srv://<username>:<password>@<cluster>.mongodb.net/inventory_app?retryWrites=true&w=majority
@@ -151,4 +152,6 @@ Production checklist:
 - `Cloudinary is not configured`: set all Cloudinary credentials.
 - `Invalid or expired authentication token`: refresh Firebase session on mobile and create a new API session.
 - CORS errors: add the mobile debug host or web origin to `CLIENT_ORIGIN`.
-- Mongo connection errors: check Atlas IP allow list and database credentials.
+- `Could not connect to any servers in your MongoDB Atlas cluster`: open Atlas > Network Access > Add IP Address > Add Current IP Address, then restart `npm run dev`.
+- `MongoDB database: not set in URI`: add a database name before the query string, for example `/inventory_app?retryWrites=true&w=majority`.
+- Mongo authentication errors: check the Atlas database user's username/password and URL-encode special characters in the password.
