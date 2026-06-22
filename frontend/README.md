@@ -99,12 +99,67 @@ Android package id and iOS bundle id are set to `com.inventorymobile`. If you ch
 
 ## Build Readiness
 
-Android release:
+Android Play Store / production release:
+
+1. Generate a private upload keystore. Keep this file safe because future Play Store updates must be signed with the same key.
+
+```powershell
+cd F:\InventryApp\frontend
+keytool -genkeypair -v -keystore android\app\upload-keystore.jks -alias inventory-upload -keyalg RSA -keysize 2048 -validity 10000
+```
+
+2. Copy the example signing file and add your real passwords.
+
+```powershell
+Copy-Item android\key.properties.example android\key.properties
+```
+
+`android/key.properties`:
+
+```properties
+storeFile=app/upload-keystore.jks
+storePassword=your-store-password
+keyAlias=inventory-upload
+keyPassword=your-key-password
+```
+
+3. For a physical phone, set `API_URL` in `.env` to your deployed backend URL or your computer LAN IP, not `10.0.2.2`.
+
+```env
+API_URL=http://192.168.1.20:5000/api/v1
+```
+
+4. Build a signed release APK for direct install:
+
+```powershell
+npm run android:release:apk
+```
+
+The APK is created at:
+
+```text
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+5. Build a signed Android App Bundle for Play Store upload:
+
+```powershell
+npm run android:release:aab
+```
+
+The AAB is created at:
+
+```text
+android/app/build/outputs/bundle/release/app-release.aab
+```
+
+Install the release APK on a connected Android device:
 
 ```bash
-cd android
-./gradlew assembleRelease
+adb install -r android/app/build/outputs/apk/release/app-release.apk
 ```
+
+If a debug build is already installed, uninstall it first with `adb uninstall com.inventorymobile`.
 
 iOS release:
 

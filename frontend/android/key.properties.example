@@ -1,0 +1,4 @@
+storeFile=app/upload-keystore.jks
+storePassword=REPLACE_WITH_STRONG_STORE_PASSWORD
+keyAlias=inventory-upload
+keyPassword=REPLACE_WITH_STRONG_KEY_PASSWORD

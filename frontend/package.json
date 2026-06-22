@@ -7,6 +7,8 @@
     "firebase:android": "node scripts/generate-google-services.js",
     "preandroid": "npm run firebase:android",
     "android": "react-native run-android",
+    "android:release:apk": "npm run firebase:android && cd android && gradlew.bat assembleRelease",
+    "android:release:aab": "npm run firebase:android && cd android && gradlew.bat bundleRelease",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",

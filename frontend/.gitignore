@@ -7,6 +7,7 @@ ios/Pods/
 ios/build/
 ios/GoogleService-Info.plist
 android/local.properties
+android/key.properties
 android/app/google-services.json
 dist/
 coverage/
