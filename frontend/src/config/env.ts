@@ -12,10 +12,9 @@ type NativeConfigModule = {
   getConfig?: () => { config?: Partial<AppConfig> } | Partial<AppConfig>;
 };
 
-const fallbackApiUrl =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:5000/api/v1'
-    : 'http://localhost:5000/api/v1';
+const productionApiUrl = 'https://inventory-management-app-n8s2.onrender.com/api/v1';
+const localApiUrl = Platform.OS === 'android' ? 'http://10.0.2.2:5000/api/v1' : 'http://localhost:5000/api/v1';
+const fallbackApiUrl = __DEV__ ? localApiUrl : productionApiUrl;
 
 function readNativeConfig(): Partial<AppConfig> {
   const configModule = NativeModules.RNCConfigModule as NativeConfigModule | undefined;
