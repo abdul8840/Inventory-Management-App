@@ -37,8 +37,18 @@ function readNativeConfig(): Partial<AppConfig> {
   }
 }
 
+function isLocalApiUrl(value: string) {
+  const normalized = value.toLowerCase();
+
+  return normalized.includes('://10.0.2.2') || normalized.includes('://localhost') || normalized.includes('://127.0.0.1');
+}
+
 function clean(value: string | undefined, fallback?: string) {
   if (!value || value.startsWith('your-')) {
+    return fallback;
+  }
+
+  if (!__DEV__ && isLocalApiUrl(value)) {
     return fallback;
   }
 
