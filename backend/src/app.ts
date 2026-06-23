@@ -34,6 +34,16 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(pinoHttp({ logger }));
 app.use(apiRateLimiter);
 
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    name: 'Inventory Pro API',
+    status: 'ok',
+    health: '/health',
+    docs: `/api/${env.API_VERSION}/docs`
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
 });
