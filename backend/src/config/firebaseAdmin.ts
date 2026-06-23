@@ -1,4 +1,5 @@
-import admin from 'firebase-admin';
+import { applicationDefault, cert, getApp, getApps, initializeApp, type App, type Credential, type ServiceAccount } from 'firebase-admin/app';
+import { getAuth, type DecodedIdToken } from 'firebase-admin/auth';
 import { env, firebasePrivateKey } from './env';
 import { ApiError } from '../utils/apiError';
 
@@ -8,39 +9,39 @@ interface FirebaseServiceAccount {
   private_key?: string;
 }
 
-function buildCredential(): admin.credential.Credential {
+function buildCredential(): Credential {
   if (env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
     const json = Buffer.from(env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8');
     const serviceAccount = JSON.parse(json) as FirebaseServiceAccount;
     assertServiceAccountProject(serviceAccount.project_id, 'FIREBASE_SERVICE_ACCOUNT_BASE64');
-    return admin.credential.cert(toAdminServiceAccount(serviceAccount, 'FIREBASE_SERVICE_ACCOUNT_BASE64'));
+    return cert(toAdminServiceAccount(serviceAccount, 'FIREBASE_SERVICE_ACCOUNT_BASE64'));
   }
 
   if (env.FIREBASE_PROJECT_ID && env.FIREBASE_CLIENT_EMAIL && firebasePrivateKey) {
     assertServiceAccountProject(env.FIREBASE_PROJECT_ID, 'FIREBASE_PROJECT_ID');
-    return admin.credential.cert({
+    return cert({
       projectId: env.FIREBASE_PROJECT_ID,
       clientEmail: env.FIREBASE_CLIENT_EMAIL,
       privateKey: firebasePrivateKey
     });
   }
 
-  return admin.credential.applicationDefault();
+  return applicationDefault();
 }
 
-export function getFirebaseAdmin(): admin.app.App {
-  if (admin.apps.length) {
-    return admin.app();
+export function getFirebaseAdmin(): App {
+  if (getApps().length) {
+    return getApp();
   }
 
-  return admin.initializeApp({
+  return initializeApp({
     credential: buildCredential()
   });
 }
 
-export async function verifyFirebaseIdToken(idToken: string): Promise<admin.auth.DecodedIdToken> {
+export async function verifyFirebaseIdToken(idToken: string): Promise<DecodedIdToken> {
   try {
-    return await getFirebaseAdmin().auth().verifyIdToken(idToken, true);
+    return await getAuth(getFirebaseAdmin()).verifyIdToken(idToken, true);
   } catch (error) {
     throw normalizeFirebaseAdminError(error);
   }
@@ -58,7 +59,7 @@ function assertServiceAccountProject(serviceAccountProjectId: string | undefined
   });
 }
 
-function toAdminServiceAccount(serviceAccount: FirebaseServiceAccount, source: string): admin.ServiceAccount {
+function toAdminServiceAccount(serviceAccount: FirebaseServiceAccount, source: string): ServiceAccount {
   if (!serviceAccount.project_id || !serviceAccount.client_email || !serviceAccount.private_key) {
     throw new ApiError(500, 'Firebase Admin service account is incomplete', { source });
   }

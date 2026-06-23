@@ -1,8 +1,8 @@
-import type admin from 'firebase-admin';
+import type { DecodedIdToken } from 'firebase-admin/auth';
 import { UserModel } from '../models/User';
 import { SettingsModel } from '../models/Settings';
 
-export async function upsertUserFromFirebase(decodedToken: admin.auth.DecodedIdToken) {
+export async function upsertUserFromFirebase(decodedToken: DecodedIdToken) {
   const email = decodedToken.email?.toLowerCase();
 
   if (!email) {
