@@ -1,44 +1,65 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import type { LucideIcon } from 'lucide-react-native';
 import { palette } from '../../theme/theme';
+import { radius, spacing, surfacePanelStyle } from '../common/Layout';
 
 interface MetricCardProps {
   label: string;
   value: string;
   accent?: string;
   icon: LucideIcon;
+  style?: StyleProp<ViewStyle>;
 }
 
-export function MetricCard({ label, value, accent, icon: Icon }: MetricCardProps) {
+export function MetricCard({ label, value, accent, icon: Icon, style }: MetricCardProps) {
   const theme = useTheme();
   const color = accent || theme.colors.primary;
 
   return (
-    <Card
-      mode="contained"
-      style={{
-        flex: 1,
-        minWidth: '47%',
-        backgroundColor: theme.colors.surface,
-        borderWidth: 1,
-        borderColor: theme.colors.outlineVariant
-      }}
-    >
-      <Card.Content style={{ padding: 16 }}>
-        <View className="flex-row items-center justify-between">
-          <View style={{ backgroundColor: color === palette.black ? '#EFE4D7' : `${color}1A`, borderRadius: 12, padding: 9 }}>
-            <Icon size={18} color={color} />
-          </View>
+    <View style={[surfacePanelStyle(theme), styles.card, style]}>
+      <View style={styles.topRow}>
+        <View style={[styles.iconBox, { backgroundColor: color === palette.black ? '#EFE4D7' : `${color}1A` }]}>
+          <Icon size={20} color={color} strokeWidth={2.1} />
         </View>
-        <Text variant="titleLarge" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 14, color: theme.colors.onSurface, fontWeight: '900' }}>
-          {value}
-        </Text>
-        <Text variant="bodySmall" numberOfLines={1} style={{ color: theme.colors.onSurfaceVariant, marginTop: 4, fontWeight: '700' }}>
-          {label}
-        </Text>
-      </Card.Content>
-    </Card>
+      </View>
+      <Text variant="titleLarge" numberOfLines={1} adjustsFontSizeToFit style={[styles.value, { color: theme.colors.onSurface }]}>
+        {value}
+      </Text>
+      <Text variant="bodySmall" numberOfLines={1} style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
+        {label}
+      </Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    padding: spacing.lg,
+    minHeight: 132,
+    justifyContent: 'space-between'
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  iconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  value: {
+    marginTop: spacing.lg,
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  label: {
+    marginTop: spacing.xs,
+    fontWeight: '800',
+    letterSpacing: 0
+  }
+});

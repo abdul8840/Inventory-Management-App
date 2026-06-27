@@ -1,11 +1,12 @@
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, HelperText, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, HelperText, TextInput, useTheme } from 'react-native-paper';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LogIn } from 'lucide-react-native';
 import { AppButton } from '../../components/common/AppButton';
+import { HeroPanel, Stack, SurfacePanel, inputOutlineStyle, inputStyle, radius, spacing } from '../../components/common/Layout';
 import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { signInWithEmail, signInWithGoogle } from '../../features/auth/authSlice';
@@ -28,96 +29,108 @@ export function LoginScreen({ navigation }: Props) {
   const onSubmit = (values: LoginValues) => dispatch(signInWithEmail(values));
 
   return (
-    <Screen contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-      <View
-        style={{
-          backgroundColor: theme.colors.secondary,
-          borderRadius: 28,
-          padding: 22,
-          marginBottom: 22
-        }}
-      >
-        <View
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: 16,
-            backgroundColor: theme.colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 18
-          }}
-        >
-          <LogIn color="#FFFFFF" size={26} />
-        </View>
-        <Text variant="displaySmall" style={{ color: '#FFFFFF', fontWeight: '900' }}>
-          Welcome back
-        </Text>
-        <Text variant="bodyLarge" style={{ color: '#F5D8DC', marginTop: 8, lineHeight: 24 }}>
-          Sign in to control stock, sales, alerts, and reports from your private workspace.
-        </Text>
-      </View>
-      <View
-        className="gap-3"
-        style={{
-          backgroundColor: theme.colors.surface,
-          borderRadius: 24,
-          borderWidth: 1,
-          borderColor: theme.colors.outlineVariant,
-          padding: 18
-        }}
-      >
-        <Controller
-          control={form.control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <>
-              <TextInput
-                label="Email"
-                mode="outlined"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                left={<TextInput.Icon icon={paperIcon('email-outline')} />}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-              />
-              <HelperText type="error" visible={Boolean(fieldState.error)}>
-                {fieldState.error?.message}
-              </HelperText>
-            </>
-          )}
+    <Screen contentContainerStyle={styles.authContent}>
+      <Stack gap={spacing.xl}>
+        <HeroPanel
+          eyebrow="Private inventory"
+          title="Welcome back"
+          body="Sign in to control stock, sales, alerts, and reports from your secure workspace."
+          icon={LogIn}
         />
-        <Controller
-          control={form.control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <>
-              <TextInput
-                label="Password"
-                mode="outlined"
-                secureTextEntry
-                left={<TextInput.Icon icon={paperIcon('lock-outline')} />}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-              />
-              <HelperText type="error" visible={Boolean(fieldState.error)}>
-                {fieldState.error?.message}
-              </HelperText>
-            </>
-          )}
-        />
-        {error ? <HelperText type="error" visible>{error}</HelperText> : null}
-        <AppButton loading={loading} onPress={form.handleSubmit(onSubmit)}>
-          Sign In
-        </AppButton>
-        <Button mode="outlined" icon={paperIcon('google')} contentStyle={{ minHeight: 50 }} onPress={() => dispatch(signInWithGoogle())} disabled={loading}>
-          Continue with Google
-        </Button>
-        <Button onPress={() => navigation.navigate('ForgotPassword')}>Forgot password?</Button>
-        <Button onPress={() => navigation.navigate('Register')}>Create account</Button>
-      </View>
+        <SurfacePanel>
+          <Stack gap={spacing.md}>
+            <Controller
+              control={form.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <>
+                  <TextInput
+                    label="Email"
+                    mode="outlined"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    left={<TextInput.Icon icon={paperIcon('email-outline')} />}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    style={inputStyle(theme)}
+                    outlineStyle={inputOutlineStyle()}
+                  />
+                  <HelperText type="error" visible={Boolean(fieldState.error)}>
+                    {fieldState.error?.message}
+                  </HelperText>
+                </>
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <>
+                  <TextInput
+                    label="Password"
+                    mode="outlined"
+                    secureTextEntry
+                    left={<TextInput.Icon icon={paperIcon('lock-outline')} />}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    style={inputStyle(theme)}
+                    outlineStyle={inputOutlineStyle()}
+                  />
+                  <HelperText type="error" visible={Boolean(fieldState.error)}>
+                    {fieldState.error?.message}
+                  </HelperText>
+                </>
+              )}
+            />
+            {error ? <HelperText type="error" visible>{error}</HelperText> : null}
+            <AppButton loading={loading} onPress={form.handleSubmit(onSubmit)}>
+              Sign In
+            </AppButton>
+            <Button
+              mode="outlined"
+              icon={paperIcon('google')}
+              contentStyle={styles.secondaryButtonContent}
+              labelStyle={styles.secondaryButtonLabel}
+              style={styles.secondaryButton}
+              onPress={() => dispatch(signInWithGoogle())}
+              disabled={loading}
+            >
+              Continue with Google
+            </Button>
+            <Button labelStyle={styles.linkLabel} onPress={() => navigation.navigate('ForgotPassword')}>
+              Forgot password?
+            </Button>
+            <Button labelStyle={styles.linkLabel} onPress={() => navigation.navigate('Register')}>
+              Create account
+            </Button>
+          </Stack>
+        </SurfacePanel>
+      </Stack>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  authContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl
+  },
+  secondaryButton: {
+    borderRadius: radius.lg
+  },
+  secondaryButtonContent: {
+    minHeight: 54
+  },
+  secondaryButtonLabel: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  linkLabel: {
+    fontWeight: '800',
+    letterSpacing: 0
+  }
+});

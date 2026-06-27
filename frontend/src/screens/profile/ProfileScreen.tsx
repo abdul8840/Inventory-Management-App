@@ -1,6 +1,8 @@
 import React from 'react';
-import { Image, View } from 'react-native';
-import { Button, Card, Text, useTheme } from 'react-native-paper';
+import { Image, StyleSheet, View } from 'react-native';
+import { Button, Text, useTheme } from 'react-native-paper';
+import { UserCircle } from 'lucide-react-native';
+import { HeroPanel, Stack, SurfacePanel, radius, spacing } from '../../components/common/Layout';
 import { Screen } from '../../components/common/Screen';
 import { logout } from '../../features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/useStore';
@@ -10,68 +12,100 @@ export function ProfileScreen() {
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
   const theme = useTheme();
+  const initial = user?.name?.slice(0, 1).toUpperCase() || 'U';
 
   return (
     <Screen>
-      <View style={{ backgroundColor: theme.colors.secondary, borderRadius: 24, padding: 18 }}>
-        <Text variant="labelLarge" style={{ color: '#F5D8DC', fontWeight: '800' }}>
-          Account center
-        </Text>
-        <Text variant="headlineSmall" style={{ color: '#FFFFFF', fontWeight: '900', marginTop: 4 }}>
-          Profile
-        </Text>
-      </View>
-      <Card mode="contained" style={{ marginTop: 16, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.outlineVariant }}>
-        <Card.Content style={{ padding: 16 }}>
-          <View className="flex-row items-center gap-4">
+      <Stack gap={spacing.lg}>
+        <HeroPanel eyebrow="Account center" title="Profile" body="Manage your identity and workspace session." icon={UserCircle} compact />
+        <SurfacePanel>
+          <View style={styles.profileRow}>
             {user?.profileImage ? (
-              <Image source={{ uri: user.profileImage }} style={{ width: 72, height: 72, borderRadius: 36 }} />
+              <Image source={{ uri: user.profileImage }} style={styles.avatar} />
             ) : (
-              <View
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 36,
-                  backgroundColor: theme.colors.primaryContainer,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Text variant="headlineSmall" style={{ color: theme.colors.primary, fontWeight: '900' }}>{user?.name?.slice(0, 1).toUpperCase()}</Text>
+              <View style={[styles.avatarFallback, { backgroundColor: theme.colors.primaryContainer }]}>
+                <Text variant="headlineSmall" style={[styles.avatarText, { color: theme.colors.primary }]}>{initial}</Text>
               </View>
             )}
-            <View className="flex-1">
-              <Text variant="titleLarge" style={{ fontWeight: '800' }}>
+            <View style={styles.profileCopy}>
+              <Text variant="titleLarge" numberOfLines={1} style={[styles.name, { color: theme.colors.onSurface }]}>
                 {user?.name}
               </Text>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              <Text variant="bodyMedium" numberOfLines={1} style={{ color: theme.colors.onSurfaceVariant }}>
                 {user?.email}
               </Text>
-              <Text variant="labelLarge" style={{ color: theme.colors.primary, marginTop: 4 }}>
+              <Text variant="labelLarge" style={[styles.role, { color: theme.colors.primary }]}>
                 {user?.role}
               </Text>
             </View>
           </View>
-        </Card.Content>
-      </Card>
-      {!user?.emailVerified ? (
-        <Card mode="contained" style={{ marginTop: 16, backgroundColor: theme.colors.errorContainer }}>
-          <Card.Content>
-            <Text variant="titleMedium" style={{ fontWeight: '700' }}>
-              Email verification pending
-            </Text>
-            <Text variant="bodyMedium" style={{ marginTop: 6 }}>
-              Verify your email to secure account recovery and future admin capabilities.
-            </Text>
-            <Button mode="contained" style={{ marginTop: 12 }} onPress={resendVerificationEmail}>
+        </SurfacePanel>
+        {!user?.emailVerified ? (
+          <SurfacePanel style={{ backgroundColor: theme.colors.errorContainer, borderColor: theme.colors.error }}>
+            <Text variant="titleMedium" style={[styles.name, { color: theme.colors.onErrorContainer }]}>Email verification pending</Text>
+            <Text variant="bodyMedium" style={[styles.verificationText, { color: theme.colors.onErrorContainer }]}>Verify your email to secure account recovery and future admin capabilities.</Text>
+            <Button mode="contained" style={styles.verificationButton} onPress={resendVerificationEmail}>
               Resend Verification
             </Button>
-          </Card.Content>
-        </Card>
-      ) : null}
-      <Button mode="outlined" contentStyle={{ minHeight: 50 }} style={{ marginTop: 24 }} onPress={() => dispatch(logout())}>
-        Logout
-      </Button>
+          </SurfacePanel>
+        ) : null}
+        <Button mode="outlined" contentStyle={styles.logoutContent} style={styles.logoutButton} onPress={() => dispatch(logout())}>
+          Logout
+        </Button>
+      </Stack>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  avatar: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    marginRight: spacing.lg
+  },
+  avatarFallback: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    marginRight: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  avatarText: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  profileCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  name: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  role: {
+    marginTop: spacing.xs,
+    textTransform: 'capitalize',
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  verificationText: {
+    marginTop: spacing.sm,
+    lineHeight: 22
+  },
+  verificationButton: {
+    marginTop: spacing.md,
+    borderRadius: radius.lg
+  },
+  logoutButton: {
+    borderRadius: radius.lg
+  },
+  logoutContent: {
+    minHeight: 54
+  }
+});

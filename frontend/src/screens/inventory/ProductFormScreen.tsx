@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Image, View } from 'react-native';
+import { Alert, Image, StyleSheet, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, HelperText, Menu, Text, TextInput, useTheme } from 'react-native-paper';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { PackagePlus } from 'lucide-react-native';
 import { AppButton } from '../../components/common/AppButton';
+import { HeroPanel, ResponsiveGrid, Stack, SurfacePanel, inputOutlineStyle, inputStyle, radius, spacing } from '../../components/common/Layout';
 import { paperIcon } from '../../components/common/PaperIcon';
 import { Screen } from '../../components/common/Screen';
 import { categoryOptions } from '../../constants/categories';
@@ -87,98 +89,91 @@ export function ProductFormScreen({ route, navigation }: Props) {
 
   return (
     <Screen>
-      <View style={{ backgroundColor: theme.colors.secondary, borderRadius: 24, padding: 18, marginBottom: 18 }}>
-        <Text variant="labelLarge" style={{ color: '#F5D8DC', fontWeight: '800' }}>
-          Product studio
-        </Text>
-        <Text variant="headlineSmall" style={{ color: '#FFFFFF', fontWeight: '900', marginTop: 4 }}>
-          {productId ? 'Edit Product' : 'New Product'}
-        </Text>
-        <Text variant="bodyMedium" style={{ color: '#F5D8DC', marginTop: 6 }}>
-          Images, stock, pricing, supplier, and alert settings.
-        </Text>
-      </View>
-      <View className="gap-3">
-        <ControlledInput control={form.control} name="title" label="Product Title" />
-        <ControlledInput control={form.control} name="description" label="Description" multiline />
-        <ControlledInput control={form.control} name="sku" label="SKU (auto generated if empty)" autoCapitalize="characters" />
-        <ControlledInput control={form.control} name="barcode" label="Barcode" />
-        <ControlledInput control={form.control} name="qrCode" label="QR Code" />
-        <SelectField<ProductCategory>
-          label="Category"
-          value={values.category}
-          options={categoryOptions}
-          onChange={(value) => form.setValue('category', value, { shouldDirty: true })}
+      <Stack gap={spacing.lg}>
+        <HeroPanel
+          eyebrow="Product studio"
+          title={productId ? 'Edit Product' : 'New Product'}
+          body="Images, stock, pricing, supplier, and alert settings."
+          icon={PackagePlus}
+          compact
         />
-        <SelectField<ProductStatus>
-          label="Product Status"
-          value={values.status}
-          options={statuses.map((status) => ({ label: status.replace(/_/g, ' '), value: status }))}
-          onChange={(value) => form.setValue('status', value, { shouldDirty: true })}
-        />
-        <View className="flex-row gap-3">
-          <View className="flex-1">
+        <Stack gap={spacing.md}>
+          <ControlledInput control={form.control} name="title" label="Product Title" />
+          <ControlledInput control={form.control} name="description" label="Description" multiline />
+          <ControlledInput control={form.control} name="sku" label="SKU (auto generated if empty)" autoCapitalize="characters" />
+          <ControlledInput control={form.control} name="barcode" label="Barcode" />
+          <ControlledInput control={form.control} name="qrCode" label="QR Code" />
+          <SelectField<ProductCategory>
+            label="Category"
+            value={values.category}
+            options={categoryOptions}
+            onChange={(value) => form.setValue('category', value, { shouldDirty: true })}
+          />
+          <SelectField<ProductStatus>
+            label="Product Status"
+            value={values.status}
+            options={statuses.map((status) => ({ label: status.replace(/_/g, ' '), value: status }))}
+            onChange={(value) => form.setValue('status', value, { shouldDirty: true })}
+          />
+          <ResponsiveGrid gap={spacing.md} minItemWidth={150}>
             <ControlledInput control={form.control} name="stockAvailable" label="Stock Available" keyboardType="number-pad" />
-          </View>
-          <View className="flex-1">
             <ControlledInput control={form.control} name="stockSold" label="Stock Sold" keyboardType="number-pad" />
-          </View>
-        </View>
-        <View className="flex-row gap-3">
-          <View className="flex-1">
             <ControlledInput control={form.control} name="purchasePrice" label="Purchase Price" keyboardType="decimal-pad" />
-          </View>
-          <View className="flex-1">
             <ControlledInput control={form.control} name="sellingPrice" label="Selling Price" keyboardType="decimal-pad" />
-          </View>
-        </View>
-        <ControlledInput control={form.control} name="lowStockAlertThreshold" label="Low Stock Alert Threshold" keyboardType="number-pad" />
-        <ControlledInput control={form.control} name="supplierName" label="Supplier Name" />
-        <ControlledInput control={form.control} name="supplierContact" label="Supplier Contact" />
-        <ControlledInput control={form.control} name="notes" label="Notes" multiline />
-        <View
-          style={{
-            borderRadius: 20,
-            backgroundColor: theme.colors.surface,
-            borderWidth: 1,
-            borderColor: theme.colors.outlineVariant,
-            padding: 16
-          }}
-        >
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '900' }}>
-            Calculations
-          </Text>
-          <View className="mt-3 flex-row flex-wrap gap-2">
+          </ResponsiveGrid>
+          <ControlledInput control={form.control} name="lowStockAlertThreshold" label="Low Stock Alert Threshold" keyboardType="number-pad" />
+          <ControlledInput control={form.control} name="supplierName" label="Supplier Name" />
+          <ControlledInput control={form.control} name="supplierContact" label="Supplier Contact" />
+          <ControlledInput control={form.control} name="notes" label="Notes" multiline />
+        </Stack>
+
+        <SurfacePanel>
+          <Text variant="titleMedium" style={[styles.panelTitle, { color: theme.colors.onSurface }]}>Calculations</Text>
+          <ResponsiveGrid gap={spacing.sm} minItemWidth={140} style={styles.metricGrid}>
             <Metric label="Total stock" value={formatNumber(metrics.totalStock)} />
             <Metric label="Purchase value" value={formatCurrency(metrics.totalPurchaseValue)} />
             <Metric label="Sales value" value={formatCurrency(metrics.totalSalesValue)} />
             <Metric label="Profit" value={`${formatCurrency(metrics.profitAmount)} / ${metrics.profitMargin.toFixed(1)}%`} accent />
+          </ResponsiveGrid>
+        </SurfacePanel>
+
+        {values.images.length ? (
+          <View style={styles.imageGrid}>
+            {values.images.map((image) => (
+              <Image key={image.publicId} source={{ uri: image.url }} style={styles.productImage} />
+            ))}
           </View>
-        </View>
-        <View className="flex-row flex-wrap gap-2">
-          {values.images.map((image) => (
-            <Image key={image.publicId} source={{ uri: image.url }} style={{ width: 72, height: 72, borderRadius: 8 }} />
-          ))}
-        </View>
-        <Button mode="outlined" icon={paperIcon('image-plus')} onPress={pickImage}>
+        ) : null}
+        <Button mode="outlined" icon={paperIcon('image-plus')} contentStyle={styles.outlineButtonContent} style={styles.outlineButton} onPress={pickImage}>
           Add Product Image
         </Button>
         <AppButton loading={loading} onPress={form.handleSubmit(onSubmit)}>
           {productId ? 'Save Changes' : 'Create Product'}
         </AppButton>
-      </View>
+      </Stack>
     </Screen>
   );
 }
 
 function ControlledInput({ control, name, label, ...props }: any) {
+  const theme = useTheme();
+
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <>
-          <TextInput mode="outlined" label={label} value={String(field.value ?? '')} onBlur={field.onBlur} onChangeText={field.onChange} {...props} />
+          <TextInput
+            mode="outlined"
+            label={label}
+            value={String(field.value ?? '')}
+            onBlur={field.onBlur}
+            onChangeText={field.onChange}
+            style={inputStyle(theme)}
+            outlineStyle={inputOutlineStyle()}
+            {...props}
+          />
           <HelperText type="error" visible={Boolean(fieldState.error)}>
             {fieldState.error?.message}
           </HelperText>
@@ -205,7 +200,11 @@ function SelectField<T extends string>({
     <Menu
       visible={visible}
       onDismiss={() => setVisible(false)}
-      anchor={<Button mode="outlined" onPress={() => setVisible(true)} contentStyle={{ minHeight: 50 }}>{label}: {String(value)}</Button>}
+      anchor={
+        <Button mode="outlined" onPress={() => setVisible(true)} contentStyle={styles.outlineButtonContent} style={styles.outlineButton}>
+          {label}: {String(value)}
+        </Button>
+      }
     >
       {options.map((option) => (
         <Menu.Item
@@ -222,12 +221,14 @@ function SelectField<T extends string>({
 }
 
 function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  const theme = useTheme();
+
   return (
-    <View style={{ width: '48%', borderRadius: 14, backgroundColor: accent ? palette.redSoft : '#FFF8F0', padding: 10 }}>
-      <Text variant="labelSmall" style={{ color: accent ? palette.redDark : palette.muted, fontWeight: '800' }}>
+    <View style={[styles.metric, { backgroundColor: accent ? palette.redSoft : theme.colors.surfaceVariant }]}>
+      <Text variant="labelSmall" style={[styles.metricLabel, { color: accent ? palette.redDark : theme.colors.onSurfaceVariant }]}>
         {label}
       </Text>
-      <Text variant="titleSmall" numberOfLines={1} adjustsFontSizeToFit style={{ color: accent ? palette.redDark : palette.black, fontWeight: '900' }}>
+      <Text variant="titleSmall" numberOfLines={1} adjustsFontSizeToFit style={[styles.metricValue, { color: accent ? palette.redDark : theme.colors.onSurface }]}>
         {value}
       </Text>
     </View>
@@ -251,6 +252,48 @@ function toProductFormValues(product: Product): ProductFormValues {
     supplierName: product.supplierName,
     supplierContact: product.supplierContact,
     status: product.status,
-    notes: product.notes,
+    notes: product.notes
   };
 }
+
+const styles = StyleSheet.create({
+  panelTitle: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  metricGrid: {
+    marginTop: spacing.md
+  },
+  metric: {
+    borderRadius: radius.md,
+    padding: spacing.md,
+    minHeight: 74
+  },
+  metricLabel: {
+    fontWeight: '800',
+    letterSpacing: 0
+  },
+  metricValue: {
+    fontWeight: '900',
+    letterSpacing: 0,
+    marginTop: 2
+  },
+  imageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -spacing.xs
+  },
+  productImage: {
+    width: 78,
+    height: 78,
+    borderRadius: radius.md,
+    marginHorizontal: spacing.xs,
+    marginBottom: spacing.sm
+  },
+  outlineButton: {
+    borderRadius: radius.lg
+  },
+  outlineButtonContent: {
+    minHeight: 52
+  }
+});

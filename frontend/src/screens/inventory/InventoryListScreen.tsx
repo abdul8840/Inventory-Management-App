@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { FAB, Searchbar, SegmentedButtons, Text, useTheme } from 'react-native-paper';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { EmptyState } from '../../components/common/EmptyState';
+import { HeroPanel, SectionTitle, spacing } from '../../components/common/Layout';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
 import { paperIcon } from '../../components/common/PaperIcon';
 import { ProductCard } from '../../components/inventory/ProductCard';
@@ -10,6 +12,7 @@ import { useProducts } from '../../features/inventory/useProducts';
 import { useDebounce } from '../../hooks/useDebounce';
 import type { InventoryStackParamList } from '../../types/navigation';
 import type { ProductCategory } from '../../types/product';
+import { PackageSearch } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<InventoryStackParamList, 'InventoryList'>;
 
@@ -22,6 +25,7 @@ const quickFilters = [
 
 export function InventoryListScreen({ navigation }: Props) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const debouncedSearch = useDebounce(search);
@@ -38,75 +42,123 @@ export function InventoryListScreen({ navigation }: Props) {
     [debouncedSearch, filter]
   );
   const products = useProducts(query);
+  const fabBottom = Math.max(insets.bottom + spacing.lg, spacing.xxl);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <View className="gap-3 px-4 pb-3 pt-3">
-        <View
-          style={{
-            backgroundColor: theme.colors.secondary,
-            borderRadius: 24,
-            padding: 18
-          }}
-        >
-          <Text variant="labelLarge" style={{ color: '#F5D8DC', fontWeight: '800' }}>
-            Stock workspace
-          </Text>
-          <Text variant="headlineSmall" style={{ color: '#FFFFFF', fontWeight: '900', marginTop: 4 }}>
-            Inventory
-          </Text>
-          <Text variant="bodyMedium" style={{ color: '#F5D8DC', marginTop: 6 }}>
-            Search, scan, filter, and update products fast.
-          </Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top', 'left', 'right']}>
+      <View style={styles.headerOuter}>
+        <View style={styles.headerInner}>
+          <HeroPanel
+            eyebrow="Stock workspace"
+            title="Inventory"
+            body="Search, scan, filter, and update products fast."
+            icon={PackageSearch}
+            compact
+          />
+          <Searchbar
+            placeholder="Search title, SKU, supplier, barcode"
+            value={search}
+            onChangeText={setSearch}
+            icon={paperIcon('magnify')}
+            clearIcon={paperIcon('close')}
+            style={[styles.search, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }]}
+            inputStyle={styles.searchInput}
+          />
+          <SegmentedButtons
+            value={filter}
+            onValueChange={setFilter}
+            buttons={quickFilters}
+            density="small"
+            style={[styles.filters, { backgroundColor: theme.colors.surface }]}
+          />
         </View>
-        <Searchbar
-          placeholder="Search title, SKU, supplier, barcode"
-          value={search}
-          onChangeText={setSearch}
-          icon={paperIcon('magnify')}
-          clearIcon={paperIcon('close')}
-          style={{ backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.outlineVariant }}
-          inputStyle={{ fontSize: 14 }}
-        />
-        <SegmentedButtons
-          value={filter}
-          onValueChange={setFilter}
-          buttons={quickFilters}
-          style={{ backgroundColor: theme.colors.surface, borderRadius: 12 }}
-        />
       </View>
+
       {products.isLoading ? (
-        <View className="p-4">
+        <View style={styles.loadingWrap}>
           <LoadingSkeleton rows={6} />
         </View>
       ) : (
         <FlatList
           data={products.data?.items || []}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 96 }}
+          contentContainerStyle={styles.listContent}
           refreshing={products.isRefetching}
           onRefresh={products.refetch}
           ListHeaderComponent={
-            <View className="mb-3 flex-row items-center justify-between">
-              <Text variant="titleMedium" style={{ color: theme.colors.onBackground, fontWeight: '900' }}>
-                Products
-              </Text>
-              <Text variant="labelLarge" style={{ color: theme.colors.onSurfaceVariant }}>
-                {products.data?.pagination.total || 0} total
-              </Text>
-            </View>
+            <SectionTitle title="Products" value={`${products.data?.pagination.total || 0} total`} style={styles.listTitle} />
           }
           ListEmptyComponent={<EmptyState title="No products found" message="Add a product or change your filters." />}
           renderItem={({ item }) => <ProductCard product={item} onPress={() => navigation.navigate('ProductDetails', { productId: item._id })} />}
         />
       )}
+
       <FAB
         icon={paperIcon('barcode-scan')}
         color={theme.colors.primary}
-        style={{ position: 'absolute', right: 88, bottom: 24, backgroundColor: theme.colors.surface }}
+        style={[styles.scanFab, { bottom: fabBottom, backgroundColor: theme.colors.surface }]}
         onPress={() => navigation.navigate('BarcodeScanner')}
       />
-      <FAB icon={paperIcon('plus')} color="#FFFFFF" style={{ position: 'absolute', right: 24, bottom: 24, backgroundColor: theme.colors.primary }} onPress={() => navigation.navigate('ProductForm')} />
-    </View>
+      <FAB
+        icon={paperIcon('plus')}
+        color="#FFFFFF"
+        style={[styles.addFab, { bottom: fabBottom, backgroundColor: theme.colors.primary }]}
+        onPress={() => navigation.navigate('ProductForm')}
+      />
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1
+  },
+  headerOuter: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md
+  },
+  headerInner: {
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center'
+  },
+  search: {
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderRadius: 18
+  },
+  searchInput: {
+    fontSize: 14,
+    letterSpacing: 0
+  },
+  filters: {
+    marginTop: spacing.md,
+    borderRadius: 14
+  },
+  loadingWrap: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+    padding: spacing.xl
+  },
+  listContent: {
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 116
+  },
+  listTitle: {
+    marginTop: spacing.sm
+  },
+  scanFab: {
+    position: 'absolute',
+    right: 88
+  },
+  addFab: {
+    position: 'absolute',
+    right: spacing.xl
+  }
+});

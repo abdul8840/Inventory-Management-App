@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Alert, Image, View } from 'react-native';
-import { Button, Card, Divider, Text, TextInput, useTheme } from 'react-native-paper';
+import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Button, Divider, Text, TextInput, useTheme } from 'react-native-paper';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
+import { ResponsiveGrid, Stack, SurfacePanel, inputOutlineStyle, inputStyle, radius, spacing } from '../../components/common/Layout';
 import { Screen } from '../../components/common/Screen';
 import { useAdjustStock, useDeleteProduct, useProduct } from '../../features/inventory/useProducts';
 import { palette } from '../../theme/theme';
@@ -50,100 +51,159 @@ export function ProductDetailsScreen({ route, navigation }: Props) {
 
   return (
     <Screen>
-      {image ? <Image source={{ uri: image.url }} style={{ height: 230, borderRadius: 24, marginBottom: 16 }} /> : null}
-      <View
-        className="flex-row items-start justify-between gap-3"
-        style={{
-          backgroundColor: theme.colors.surface,
-          borderRadius: 22,
-          borderWidth: 1,
-          borderColor: theme.colors.outlineVariant,
-          padding: 16
-        }}
-      >
-        <View className="flex-1">
-          <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: '900' }}>
-            {product.title}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            {product.category} / SKU {product.sku}
-          </Text>
-        </View>
-        <Button mode="outlined" onPress={() => navigation.navigate('ProductForm', { productId })}>
-          Edit
-        </Button>
-      </View>
-      <Card mode="contained" style={{ marginTop: 18, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.outlineVariant }}>
-        <Card.Content style={{ padding: 16 }}>
-          <View className="flex-row flex-wrap gap-4">
+      <Stack gap={spacing.lg}>
+        {image ? <Image source={{ uri: image.url }} style={styles.heroImage} /> : null}
+        <SurfacePanel>
+          <View style={styles.headerRow}>
+            <View style={styles.headerCopy}>
+              <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
+                {product.title}
+              </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+                {product.category} / SKU {product.sku}
+              </Text>
+            </View>
+            <Button mode="outlined" style={styles.editButton} onPress={() => navigation.navigate('ProductForm', { productId })}>
+              Edit
+            </Button>
+          </View>
+        </SurfacePanel>
+
+        <SurfacePanel>
+          <ResponsiveGrid gap={spacing.sm} minItemWidth={140}>
             <Metric label="Available" value={formatNumber(product.stockAvailable)} />
             <Metric label="Sold" value={formatNumber(product.stockSold)} />
             <Metric label="Total Stock" value={formatNumber(product.totalStock)} />
             <Metric label="Profit" value={formatCurrency(product.profitAmount)} />
             <Metric label="Margin" value={`${product.profitMargin.toFixed(1)}%`} />
             <Metric label="Sales Value" value={formatCurrency(product.totalSalesValue)} />
-          </View>
-        </Card.Content>
-      </Card>
-      <Card mode="contained" style={{ marginTop: 16 }}>
-        <Card.Content style={{ padding: 16 }}>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '900' }}>
-            Stock Adjustment
-          </Text>
-          <TextInput
-            label="Quantity"
-            mode="outlined"
-            keyboardType="number-pad"
-            value={quantity}
-            onChangeText={setQuantity}
-            style={{ marginTop: 12 }}
-          />
-          <View className="mt-3 flex-row gap-3">
-            <Button mode="contained" contentStyle={{ minHeight: 48 }} onPress={() => adjust('record_sale')} loading={adjustStock.isPending}>
-              Record Sale
-            </Button>
-            <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => adjust('restock')} loading={adjustStock.isPending}>
-              Restock
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
-      <Card mode="contained" style={{ marginTop: 16, backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.outlineVariant }}>
-        <Card.Content style={{ padding: 16 }}>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '900' }}>
-            Supplier
-          </Text>
-          <Text variant="bodyMedium" style={{ marginTop: 8 }}>
-            {product.supplierName || 'No supplier name'}
-          </Text>
-          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            {product.supplierContact || 'No supplier contact'}
-          </Text>
-          <Divider style={{ marginVertical: 12 }} />
-          <Text variant="bodyMedium">{product.description || 'No description'}</Text>
-          <Text variant="bodySmall" style={{ marginTop: 12, color: theme.colors.onSurfaceVariant }}>
-            Updated {formatDate(product.updatedAt)}
-          </Text>
-        </Card.Content>
-      </Card>
-      <Button mode="outlined" textColor={theme.colors.error} style={{ marginTop: 18 }} onPress={confirmDelete}>
-        Delete Product
-      </Button>
+          </ResponsiveGrid>
+        </SurfacePanel>
+
+        <SurfacePanel>
+          <Stack gap={spacing.md}>
+            <Text variant="titleMedium" style={[styles.sectionHeading, { color: theme.colors.onSurface }]}>Stock Adjustment</Text>
+            <TextInput
+              label="Quantity"
+              mode="outlined"
+              keyboardType="number-pad"
+              value={quantity}
+              onChangeText={setQuantity}
+              style={inputStyle(theme)}
+              outlineStyle={inputOutlineStyle()}
+            />
+            <View style={styles.actionRow}>
+              <Button mode="contained" contentStyle={styles.actionButtonContent} style={styles.actionButtonLeft} onPress={() => adjust('record_sale')} loading={adjustStock.isPending}>
+                Record Sale
+              </Button>
+              <Button mode="outlined" contentStyle={styles.actionButtonContent} style={styles.actionButton} onPress={() => adjust('restock')} loading={adjustStock.isPending}>
+                Restock
+              </Button>
+            </View>
+          </Stack>
+        </SurfacePanel>
+
+        <SurfacePanel>
+          <Text variant="titleMedium" style={[styles.sectionHeading, { color: theme.colors.onSurface }]}>Supplier</Text>
+          <Text variant="bodyMedium" style={styles.supplierName}>{product.supplierName || 'No supplier name'}</Text>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{product.supplierContact || 'No supplier contact'}</Text>
+          <Divider style={styles.divider} />
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>{product.description || 'No description'}</Text>
+          <Text variant="bodySmall" style={[styles.updatedAt, { color: theme.colors.onSurfaceVariant }]}>Updated {formatDate(product.updatedAt)}</Text>
+        </SurfacePanel>
+        <Button mode="outlined" textColor={theme.colors.error} contentStyle={styles.deleteContent} style={styles.deleteButton} onPress={confirmDelete}>
+          Delete Product
+        </Button>
+      </Stack>
     </Screen>
   );
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
   const theme = useTheme();
+  const isProfit = label === 'Profit';
 
   return (
-    <View style={{ width: '46%', borderRadius: 14, backgroundColor: label === 'Profit' ? palette.redSoft : theme.colors.surfaceVariant, padding: 10 }}>
-      <Text variant="labelMedium" style={{ color: label === 'Profit' ? palette.redDark : theme.colors.onSurfaceVariant, fontWeight: '800' }}>
+    <View style={[styles.metric, { backgroundColor: isProfit ? palette.redSoft : theme.colors.surfaceVariant }]}>
+      <Text variant="labelMedium" style={[styles.metricLabel, { color: isProfit ? palette.redDark : theme.colors.onSurfaceVariant }]}>
         {label}
       </Text>
-      <Text variant="titleMedium" numberOfLines={1} adjustsFontSizeToFit style={{ color: label === 'Profit' ? palette.redDark : theme.colors.onSurface, fontWeight: '900', marginTop: 2 }}>
+      <Text variant="titleMedium" numberOfLines={1} adjustsFontSizeToFit style={[styles.metricValue, { color: isProfit ? palette.redDark : theme.colors.onSurface }]}>
         {value}
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  heroImage: {
+    height: 238,
+    borderRadius: radius.xl,
+    backgroundColor: palette.creamDeep
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start'
+  },
+  headerCopy: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: spacing.md
+  },
+  title: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  editButton: {
+    borderRadius: radius.md
+  },
+  metric: {
+    borderRadius: radius.md,
+    padding: spacing.md,
+    minHeight: 78
+  },
+  metricLabel: {
+    fontWeight: '800',
+    letterSpacing: 0
+  },
+  metricValue: {
+    fontWeight: '900',
+    letterSpacing: 0,
+    marginTop: 2
+  },
+  sectionHeading: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  actionRow: {
+    flexDirection: 'row'
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: radius.lg
+  },
+  actionButtonLeft: {
+    flex: 1,
+    borderRadius: radius.lg,
+    marginRight: spacing.md
+  },
+  actionButtonContent: {
+    minHeight: 50
+  },
+  supplierName: {
+    marginTop: spacing.sm,
+    fontWeight: '700'
+  },
+  divider: {
+    marginVertical: spacing.md
+  },
+  updatedAt: {
+    marginTop: spacing.md
+  },
+  deleteButton: {
+    borderRadius: radius.lg
+  },
+  deleteContent: {
+    minHeight: 52
+  }
+});

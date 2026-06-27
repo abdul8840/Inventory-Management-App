@@ -1,7 +1,9 @@
 import React from 'react';
-import { FlatList, View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
+import { BellRing } from 'lucide-react-native';
 import { EmptyState } from '../../components/common/EmptyState';
+import { HeroPanel, spacing, surfacePanelStyle } from '../../components/common/Layout';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
 import { useMarkNotificationRead, useNotifications } from '../../features/notifications/useNotifications';
 import { formatDate } from '../../utils/formatters';
@@ -13,56 +15,86 @@ export function NotificationsScreen() {
 
   if (notifications.isLoading) {
     return (
-      <View style={{ flex: 1, padding: 16, backgroundColor: theme.colors.background }}>
+      <View style={[styles.loading, { backgroundColor: theme.colors.background }]}>
         <LoadingSkeleton rows={6} />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <View style={[styles.screen, { backgroundColor: theme.colors.background }]}>
       <FlatList
         data={notifications.data || []}
         keyExtractor={(item) => item._id}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={styles.listContent}
         refreshing={notifications.isRefetching}
         onRefresh={notifications.refetch}
-        ListHeaderComponent={
-          <View style={{ backgroundColor: theme.colors.secondary, borderRadius: 24, padding: 18, marginBottom: 16 }}>
-            <Text variant="labelLarge" style={{ color: '#F5D8DC', fontWeight: '800' }}>
-              Alert feed
-            </Text>
-            <Text variant="headlineSmall" style={{ color: '#FFFFFF', fontWeight: '900', marginTop: 4 }}>
-              Notifications
-            </Text>
-          </View>
-        }
+        ListHeaderComponent={<HeroPanel eyebrow="Alert feed" title="Notifications" body="Low stock and system events appear here." icon={BellRing} compact style={styles.header} />}
         ListEmptyComponent={<EmptyState title="No notifications" message="Low stock and system alerts will appear here." />}
         renderItem={({ item }) => (
-          <Card
-            mode="contained"
-            style={{
-              marginBottom: 12,
-              backgroundColor: item.readAt ? theme.colors.surface : theme.colors.primaryContainer,
-              borderWidth: 1,
-              borderColor: item.readAt ? theme.colors.outlineVariant : theme.colors.primary
-            }}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Mark ${item.title} as read`}
             onPress={() => markRead.mutate(item._id)}
+            style={[
+              surfacePanelStyle(theme),
+              styles.notificationCard,
+              {
+                backgroundColor: item.readAt ? theme.colors.surface : theme.colors.primaryContainer,
+                borderColor: item.readAt ? theme.colors.outlineVariant : theme.colors.primary
+              }
+            ]}
           >
-            <Card.Content style={{ padding: 16 }}>
-              <Text variant="titleMedium" style={{ color: theme.colors.onSurface, fontWeight: '900' }}>
-                {item.title}
-              </Text>
-              <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
-                {item.body}
-              </Text>
-              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-                {formatDate(item.createdAt)}
-              </Text>
-            </Card.Content>
-          </Card>
+            <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              {item.title}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.body, { color: theme.colors.onSurfaceVariant }]}>
+              {item.body}
+            </Text>
+            <Text variant="bodySmall" style={[styles.date, { color: theme.colors.onSurfaceVariant }]}>
+              {formatDate(item.createdAt)}
+            </Text>
+          </Pressable>
         )}
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1
+  },
+  loading: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+    padding: spacing.xl
+  },
+  listContent: {
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    paddingBottom: 92
+  },
+  header: {
+    marginBottom: spacing.lg
+  },
+  notificationCard: {
+    marginBottom: spacing.md
+  },
+  title: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  body: {
+    marginTop: spacing.xs,
+    lineHeight: 21
+  },
+  date: {
+    marginTop: spacing.sm
+  }
+});

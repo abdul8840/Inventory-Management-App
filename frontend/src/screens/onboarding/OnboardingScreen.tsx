@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { Button, Text, useTheme } from 'react-native-paper';
 import { BarChart3, BellRing, Boxes } from 'lucide-react-native';
 import { Screen } from '../../components/common/Screen';
+import { radius, spacing } from '../../components/common/Layout';
 import { useAppDispatch } from '../../hooks/useStore';
 import { completeOnboarding } from '../../store/preferencesSlice';
 import { palette } from '../../theme/theme';
@@ -51,76 +52,40 @@ export function OnboardingScreen() {
   };
 
   return (
-    <Screen scroll={false}>
-      <View className="flex-1 justify-between p-6">
-        <Animated.View style={{ marginTop: 18, opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }}>
-          <View
-            style={{
-              alignSelf: 'flex-start',
-              borderRadius: 999,
-              backgroundColor: theme.colors.primaryContainer,
-              paddingHorizontal: 12,
-              paddingVertical: 6
-            }}
-          >
-            <Text variant="labelLarge" style={{ color: theme.colors.primary, fontWeight: '800' }}>
-              Inventory Pro
-            </Text>
+    <Screen scroll={false} contentStyle={styles.screenContent}>
+      <View style={styles.content}>
+        <Animated.View style={[styles.copyBlock, { opacity: fade, transform: [{ translateY: fade.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
+          <View style={[styles.pill, { backgroundColor: theme.colors.primaryContainer }]}>
+            <Text variant="labelLarge" style={[styles.pillText, { color: theme.colors.primary }]}>Inventory Pro</Text>
           </View>
-          <Text variant="displaySmall" style={{ marginTop: 20, color: theme.colors.onBackground, fontWeight: '900' }}>
+          <Text variant="displaySmall" style={[styles.title, { color: theme.colors.onBackground }]}>
             {slide.title}
           </Text>
-          <Text variant="bodyLarge" style={{ marginTop: 14, color: theme.colors.onSurfaceVariant, lineHeight: 24 }}>
+          <Text variant="bodyLarge" style={[styles.body, { color: theme.colors.onSurfaceVariant }]}>
             {slide.body}
           </Text>
         </Animated.View>
-        <View
-          style={{
-            minHeight: 270,
-            borderRadius: 28,
-            backgroundColor: theme.dark ? palette.redDark : palette.black,
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 26,
-            borderWidth: 1,
-            borderColor: theme.dark ? '#55202A' : palette.black
-          }}
-        >
-          <View
-            style={{
-              width: 118,
-              height: 118,
-              borderRadius: 30,
-              backgroundColor: theme.colors.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 22
-            }}
-          >
+        <View style={[styles.visualCard, { backgroundColor: theme.dark ? palette.redDark : palette.black, borderColor: theme.dark ? '#55202A' : palette.black }]}>
+          <View style={[styles.iconFrame, { backgroundColor: theme.colors.primary }]}>
             <Icon size={64} color={palette.white} strokeWidth={1.7} />
           </View>
-          <Text variant="titleLarge" style={{ color: palette.white, fontWeight: '900', textAlign: 'center' }}>
-            Multi-user inventory control
-          </Text>
-          <Text variant="bodyMedium" style={{ color: '#F5D8DC', marginTop: 8, textAlign: 'center' }}>
-            Private stock data, smart alerts, and real-time reporting.
-          </Text>
+          <Text variant="titleLarge" style={styles.visualTitle}>Multi-user inventory control</Text>
+          <Text variant="bodyMedium" style={styles.visualBody}>Private stock data, smart alerts, and real-time reporting.</Text>
         </View>
         <View>
-          <View className="mb-5 flex-row gap-2">
+          <View style={styles.progressRow}>
             {slides.map((_, slideIndex) => (
               <View
                 key={slideIndex}
-                style={{
-                  height: 6,
-                  flex: 1,
-                  borderRadius: 8,
-                  backgroundColor: slideIndex === index ? theme.colors.primary : theme.colors.surfaceVariant
-                }}
+                style={[
+                  styles.progressBar,
+                  { backgroundColor: slideIndex === index ? theme.colors.primary : theme.colors.surfaceVariant },
+                  slideIndex < slides.length - 1 && styles.progressGap
+                ]}
               />
             ))}
           </View>
-          <Button mode="contained" contentStyle={{ minHeight: 54 }} labelStyle={{ fontWeight: '800' }} onPress={next}>
+          <Button mode="contained" contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel} style={styles.button} onPress={next}>
             {index === slides.length - 1 ? 'Get Started' : 'Continue'}
           </Button>
         </View>
@@ -128,3 +93,87 @@ export function OnboardingScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  screenContent: {
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between'
+  },
+  copyBlock: {
+    paddingTop: spacing.lg
+  },
+  pill: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6
+  },
+  pillText: {
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  title: {
+    marginTop: spacing.xl,
+    fontWeight: '900',
+    letterSpacing: 0
+  },
+  body: {
+    marginTop: spacing.md,
+    lineHeight: 24
+  },
+  visualCard: {
+    minHeight: 278,
+    borderRadius: radius.xxl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xxl,
+    borderWidth: 1
+  },
+  iconFrame: {
+    width: 118,
+    height: 118,
+    borderRadius: radius.xxl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xxl
+  },
+  visualTitle: {
+    color: palette.white,
+    fontWeight: '900',
+    textAlign: 'center',
+    letterSpacing: 0
+  },
+  visualBody: {
+    color: '#F5D8DC',
+    marginTop: spacing.sm,
+    textAlign: 'center',
+    lineHeight: 21
+  },
+  progressRow: {
+    flexDirection: 'row',
+    marginBottom: spacing.xl
+  },
+  progressBar: {
+    height: 6,
+    flex: 1,
+    borderRadius: 8
+  },
+  progressGap: {
+    marginRight: spacing.sm
+  },
+  button: {
+    borderRadius: radius.lg
+  },
+  buttonContent: {
+    minHeight: 56
+  },
+  buttonLabel: {
+    fontWeight: '900',
+    letterSpacing: 0
+  }
+});
+

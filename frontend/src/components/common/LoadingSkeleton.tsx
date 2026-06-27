@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { radius, spacing } from './Layout';
 
 export function LoadingSkeleton({ rows = 4 }: { rows?: number }) {
   const opacity = useRef(new Animated.Value(0.35)).current;
@@ -18,18 +19,30 @@ export function LoadingSkeleton({ rows = 4 }: { rows?: number }) {
   }, [opacity]);
 
   return (
-    <View className="gap-3">
+    <View>
       {Array.from({ length: rows }).map((_, index) => (
         <Animated.View
           key={index}
-          style={{
-            opacity,
-            height: index === 0 ? 96 : 72,
-            borderRadius: 8,
-            backgroundColor: theme.colors.surfaceVariant
-          }}
+          style={[
+            styles.row,
+            index < rows - 1 && styles.rowSpacing,
+            {
+              opacity,
+              height: index === 0 ? 104 : 76,
+              backgroundColor: theme.colors.surfaceVariant
+            }
+          ]}
         />
       ))}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    borderRadius: radius.lg
+  },
+  rowSpacing: {
+    marginBottom: spacing.md
+  }
+});

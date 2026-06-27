@@ -1,6 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { spacing } from './Layout';
 
 interface EmptyStateProps {
   title: string;
@@ -11,15 +12,35 @@ export function EmptyState({ title, message }: EmptyStateProps) {
   const theme = useTheme();
 
   return (
-    <View className="items-center justify-center px-6 py-12">
-      <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
+    <View style={styles.container}>
+      <Text variant="titleMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
         {title}
       </Text>
       {message ? (
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center', marginTop: 8 }}>
+        <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurfaceVariant }]}>
           {message}
         </Text>
       ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: 48
+  },
+  title: {
+    fontWeight: '900',
+    letterSpacing: 0,
+    textAlign: 'center'
+  },
+  message: {
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    lineHeight: 22
+  }
+});
+
